@@ -1,168 +1,95 @@
-let prompt = require("prompt-sync")();
+const prompt = require("prompt-sync")();
 
-function getValidNumberInput(prompMessage) {
+// ===== INPUT ANGKA =====
+function getNumber(message) {
   let num;
-  let flag = 0;
   do {
-    flag++;
-    // Pesan error number salah input setelah percobaan pertama (flag > 1)
-    if (flag > 1)
-      console.log("Input tidak valid, silakan masukkan angka yang benar.");
-    num = prompt(prompMessage);
-  } while (isNaN(num) || num.trim() === "");
+    num = prompt(message);
+    if (num.trim() === "" || isNaN(num)) {
+      console.log("Input harus berupa angka!");
+    }
+  } while (num.trim() === "" || isNaN(num));
+
   return parseFloat(num);
 }
 
-function getValidOperatorInput() {
-  let operator;
-  const getValidOperatorInput = ["+", "-", "*", "/", "%", "**"];
-  let flag = 0;
+// ===== INPUT OPERATOR =====
+function getOperator() {
+  const operators = ["+", "-", "*", "/", "%", "**"];
+  let op;
 
   do {
-    flag++;
-    // Pesan error operator salah input setelah percobaan pertama (flag > 1)
-    if (flag > 1) {
-      if (operator.trim() === "") {
-        console.log("Input tidak boleh kosong. Silahkan masukan pilihan.");
-      } else if (!getValidOperatorInput.includes(operator)) {
-        console.log(
-          "Operasi tidak valid. Silahkan masukan pilihan (+, -, *, /, %, **)."
-        );
-      }
+    op = prompt("Masukan operasi (+, -, *, /, %, **): ");
+    if (!operators.includes(op)) {
+      console.log("Operator tidak valid!");
     }
+  } while (!operators.includes(op));
 
-    operator = prompt("Masukan operasi (+, -, *, /, %, **): ");
-  } while (!getValidOperatorInput.includes(operator) || operator.trim() === "");
-
-  return operator;
+  return op;
 }
 
-// function hitung
-function calculation(a, b, operator) {
-  switch (operator) {
-    case "+":
-      return a + b;
-    case "-":
-      return a - b;
-    case "*":
-      return a * b;
-    case "/":
-      if (b === 0) {
-        return "tidak terdefinisi";
-      }
-      return a / b;
-    case "%":
-      if (b === 0) {
-        return "tidak terdefinisi";
-      }
-      return a % b;
-    case "**":
-      return a ** b;
-    default:
-      return "Operasi tidak valid";
+// ===== PERHITUNGAN =====
+function calculate(a, b, op) {
+  if ((op === "/" || op === "%") && b === 0) {
+    return "Tidak terdefinisi";
+  }
+
+  switch (op) {
+    case "+": return a + b;
+    case "-": return a - b;
+    case "*": return a * b;
+    case "/": return a / b;
+    case "%": return a % b;
+    case "**": return a ** b;
+    default: return "Operasi tidak valid";
   }
 }
 
-console.log("== Kalkulator ==");
+console.log("== Kalkulator Sederhana ==");
 
 while (true) {
-  // 1. Input Angka
-  let angka1 = getValidNumberInput("Masukan angka pertama: ");
-  let angka2 = getValidNumberInput("Masukan angka kedua: ");
+  const a = getNumber("Masukan angka pertama: ");
+  const b = getNumber("Masukan angka kedua: ");
+  const op = getOperator();
 
-  // 2. Input Operator
-  let operator = getValidOperatorInput();
+  const hasil = calculate(a, b, op);
 
-  // 3. Hitung Hasil
-  let hasil = calculation(angka1, angka2, operator);
+  console.log(`\nHasil: ${a} ${op} ${b} = ${hasil}`);
 
-  // --- ANALISIS HASIL ---
+  console.log("\n== Analisis Hasil ==");
 
-  console.log("-*_*-");
-  console.log(`Hasil dari ${angka1} ${operator} ${angka2} adalah: ${hasil}`);
+  if (typeof hasil === "number") {
+    console.log("Tipe Data: number");
+    console.log("Boolean:", Boolean(hasil));
 
-  // analisis hasil
-  console.log(`\n==Analisis Hasil==`);
-  const tipeData = typeof hasil;
-  console.log(`- Tipe Data: ${tipeData} "${hasil}"`);
+    const bilangan =
+      hasil > 0 ? "Positif" :
+      hasil < 0 ? "Negatif" : "Nol";
 
-  if (tipeData === "number") {
-    const isTruthy = hasil === 0 || !!hasil;
-    console.log(`- sifat Boolean: ${isTruthy}`);
-
-    // Bilangan Bulat vs pecahan
     const isInteger = Number.isInteger(hasil);
-    console.log(
-      `- Struktur Angka: ${isInteger ? "Bilangan Bulat" : "Pecahan/Desimal"}`
-    );
 
-    // Positif/Negatif/Nol
-    let bilangan;
-    if (hasil > 0) {
-      bilangan = "Positif";
-    } else if (hasil < 0) {
-      bilangan = "Negatif";
-    } else {
-      bilangan = "Nol";
-    }
-    console.log(`- Tanda angka: ${bilangan}`);
+    console.log("Struktur:", isInteger ? "Bulat" : "Desimal");
+    console.log("Tanda:", bilangan);
 
-    // Cek hanya jika Bilangan Bulat dan Bukan Nol
-    if (isInteger && hasil !== 0) {
-      const parity = hasil % 2 === 0 ? "Genap" : "Ganjil";
-      console.log(`- Bilangan: ${parity}`);
-    } else if (isInteger && hasil === 0) {
-      // cek angka nol
-      console.log(`- Bilangan: Nol`);
-    } else {
-      // Bilangan Pecahan (isInteger adalah FALSE)
-      console.log(`- Bilangan: Pecahan/Desimal (Bukan bilangan bulat).`);
-    }
-
-    if (!isInteger) {
-      // PECAHAN (Jika isInteger adalah FALSE)
-      console.log(`- Kesimpulan: Pecahan ${bilangan}`);
-      // Genap isInteger True
-    } else if (hasil % 2 === 0) {
-      // Nol bukan genap bukan ganjil
+    if (isInteger) {
       if (hasil === 0) {
-        console.log(`- Kesimpulan: Bilangan Nol`);
+        console.log("Kesimpulan: Bilangan Nol");
       } else {
-        console.log(`- Kesimpulan: Genap ${bilangan}`);
+        console.log(
+          "Kesimpulan:",
+          hasil % 2 === 0 ? `Genap ${bilangan}` : `Ganjil ${bilangan}`
+        );
       }
     } else {
-      // KASUS GANJIL (Ini mencakup semua bilangan bulat yang tersisa)
-      console.log(`- Kesimpulan: Ganjil ${bilangan}`);
+      console.log(`Kesimpulan: Pecahan ${bilangan}`);
     }
-  } else if (tipeData === "string") {
-    // Pesan Error untuk String (misalnya, pembagian dengan nol)
-    if (hasil.startsWith("Error")) {
-      console.log(`**${hasil}**`);
-    } else {
-      console.log(`--Operasi dihentikan periksa kembali--`);
-    }
-  }
-  // jika hasil `null` atau `undefined`.
-  const pesanDefault =
-    "Hasilnya tidak terdefinisi atau null, terjadi kesalahan!";
-  const hasilNullishCheck = hasil ?? pesanDefault;
 
-  if (hasil === null || hasil === undefined) {
-    console.log(`\n${hasilNullishCheck}`);
+  } else {
+    console.log("Operasi gagal:", hasil);
   }
 
-  console.log("--------------");
-
-  //  pertanyaan untuk Lanjut
-  let question = prompt(
-    "Tekan sembarang untuk melanjutkan, tekan (y) untuk keluar: "
-  );
-
-  if (question.toLowerCase() === "y") {
-    console.log("--------------");
-    console.log("Terima kasih telah menggunakan kalkulator ini.");
-    break;
-  }
+  const keluar = prompt("\nTekan Enter untuk lanjut, ketik (y) untuk keluar: ");
+  if (keluar.toLowerCase() === "y") break;
 }
 
-console.log("==Program selesai==");
+console.log("Program selesai.");
